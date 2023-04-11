@@ -1,5 +1,6 @@
 import mysql.connector
 from mysql.connector import errorcode
+from flask_bcrypt import generate_password_hash
 
 print("Conectando...")
 try:
@@ -24,41 +25,41 @@ cursor.execute("USE `jogoteca`;")
 
 TABLES = {}
 TABLES['Games'] = ('''
-      CREATE TABLE `games` (
-      `id` int(11) NOT NULL AUTO_INCREMENT,
-      `name` varchar(50) NOT NULL,
-      `category` varchar(40) NOT NULL,
-      `platform` varchar(20) NOT NULL,
-      PRIMARY KEY (`id`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;''')
+    CREATE TABLE `games` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `name` varchar(50) NOT NULL,
+    `category` varchar(40) NOT NULL,
+    `platform` varchar(20) NOT NULL,
+    PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;''')
 
 TABLES['Users'] = ('''
-      CREATE TABLE `users` (
-      `name` varchar(20) NOT NULL,
-      `nickname` varchar(8) NOT NULL,
-      `password` varchar(100) NOT NULL,
-      PRIMARY KEY (`nickname`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;''')
+    CREATE TABLE `users` (
+    `name` varchar(20) NOT NULL,
+    `nickname` varchar(8) NOT NULL,
+    `password` varchar(100) NOT NULL,
+    PRIMARY KEY (`nickname`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;''')
 
 for table_name in TABLES:
-      table_sql = TABLES[table_name]
-      try:
-            print('Criando tabela {}:'.format(table_name), end=' ')
-            cursor.execute(table_sql)
-      except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-                  print('Já existe')
-            else:
-                  print(err.msg)
-      else:
-            print('OK')
+    table_sql = TABLES[table_name]
+    try:
+        print('Criando tabela {}:'.format(table_name), end=' ')
+        cursor.execute(table_sql)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+                print('Já existe')
+        else:
+                print(err.msg)
+    else:
+        print('OK')
 
 # inserindo usuarios
 user_sql = 'INSERT INTO users (name, nickname, password) VALUES (%s, %s, %s)'
 users = [
-      ("Felipe Rodrigues", "FeHenriq", "fran"),
-      ("Fran Oliveira", "FranOliv", "fe"),
-      ("Dri Rodrigues", "DriCake", "mae")
+    ("Felipe Rodrigues", "FeHenriq", generate_password_hash("fran").decode("utf-8")),
+    ("Fran Oliveira", "FranOliv", generate_password_hash("fe").decode("utf-8")),
+    ("Dri Rodrigues", "DriCake", generate_password_hash("mae").decode("utf-8"))
 ]
 cursor.executemany(user_sql, users)
 
@@ -70,12 +71,13 @@ for user in cursor.fetchall():
 # inserindo jogos
 games_sql = 'INSERT INTO games (name, category, platform) VALUES (%s, %s, %s)'
 games = [
-      ('Tetris', 'Puzzle', 'Atari'),
-      ('God of War', 'Hack n Slash', 'PS2'),
-      ('Mortal Kombat', 'Luta', 'PS2'),
-      ('Valorant', 'FPS', 'PC'),
-      ('Crash Bandicoot', 'Hack n Slash', 'PS2'),
-      ('Need for Speed', 'Corrida', 'PS2'),
+    ('God of War', 'Hack n Slash', 'PS2'),
+    ('Mortal Kombat', 'Fight', 'Xbox'),
+    ('League of Legends', 'MOBA', 'PC'),
+    ('Clash Royale', 'MOBA', 'Mobile'),
+    ('Grand Theft Auto', 'RPG', 'PS4'),
+    ('Albion Online', 'MMORPG', 'PC')
+      
 ]
 cursor.executemany(games_sql, games)
 

@@ -1,9 +1,10 @@
 {% extends "template.html" %}
 {% block content %}
-  <form action={{ url_for("create") }} method="post" enctype="multipart/form-data">
-
-    <figure class="img-thumbnail col-md-4">
-      <img class="img-fluid" src="{{ url_for("image", file_name="default_image.jpg") }}" alt="">
+  <form class="formularioJogo" action={{ url_for("create") }} method="post" enctype="multipart/form-data">
+    <figure class="img-thumbnail col-md-4 formularioImagem">
+      <img class="img-fluid"
+           src="{{ url_for("image", file_name="default_image.jpg") }}"
+           alt="">
       <figcaption>
         <label class="fileContainer">
           Change Thumbnail
@@ -11,21 +12,24 @@
         </label>
       </figcaption>
     </figure>
-    
     <fieldset>
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" class="form-control" />
+      {{ form.csrf_token }}
+      <div class="form-group inputInbox">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control") }}
       </div>
-      <div class="form-group">
-        <label for="category">Category</label>
-        <input type="text" id="category" name="category" class="form-control" />
+      <div class="form-group inputInbox">
+        {{ form.category.label(class="form-label") }}
+        {{ form.category(class="form-control") }}
       </div>
-      <div class="form-group">
-        <label for="platform">Platform</label>
-        <input type="text" id="platform" name="platform" class="form-control" />
+      <div class="form-group inputInbox">
+        {{ form.platform.label(class="form-label") }}
+        {{ form.platform(class="form-control") }}
       </div>
-      <button type="submit" class="btn btn-primary mt-2 btn-salvar">Save</button>
+      <div class="form-group buttons">
+        {{ form.save(class="btn btn-primary") }}
+        <a class="btn btn-danger" href="{{ url_for("index") }}">Back</a>
+      </div>
     </fieldset>
   </form>
 {% endblock content %}

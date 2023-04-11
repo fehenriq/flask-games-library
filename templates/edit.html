@@ -1,33 +1,36 @@
 {% extends "template.html" %}
 {% block content %}
-    <form action={{ url_for("update") }} method="post">
-        <fieldset>
-            <input type="hidden" name="id" value="{{ game.id }}">
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text"
-                       id="name"
-                       name="name"
-                       class="form-control"
-                       value="{{ game.name }}"/>
-            </div>
-            <div class="form-group">
-                <label for="category">Category</label>
-                <input type="text"
-                       id="category"
-                       name="category"
-                       class="form-control"
-                       value="{{ game.category }}"/>
-            </div>
-            <div class="form-group">
-                <label for="platform">Platform</label>
-                <input type="text"
-                       id="platform"
-                       name="platform"
-                       class="form-control"
-                       value="{{ game.platform }}"/>
-            </div>
-            <button type="submit" class="btn btn-primary mt-2 btn-salvar">Save</button>
-        </fieldset>
-    </form>
+  <form class="formularioJogo" action={{ url_for("update") }} method="post" enctype="multipart/form-data">
+    <figure class="img-thumbnail col-md-4 formularioImagem">
+      <img class="img-fluid"
+           src="{{ url_for("image", file_name=thumbnail) }}"
+           alt="">
+      <figcaption>
+        <label class="fileContainer">
+          Change Thumbnail
+          <input type="file" name="file" accept=".jpg">
+        </label>
+      </figcaption>
+    </figure>
+    <fieldset>
+      <input type="hidden" name="id" value="{{ id }}">
+      {{ form.csrf_token }}
+      <div class="form-group inputBox">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control") }}
+      </div>
+      <div class="form-group inputBox">
+        {{ form.category.label(class="form-label") }}
+        {{ form.category(class="form-control") }}
+      </div>
+      <div class="form-group inputBox">
+        {{ form.platform.label(class="form-label") }}
+        {{ form.platform(class="form-control") }}
+      </div>
+      <div class="form-group buttons">
+        {{ form.save(class="btn btn-primary") }}
+        <a class="btn btn-danger" href="{{ url_for("index") }}">Back</a>
+      </div>
+    </fieldset>
+  </form>
 {% endblock content %}

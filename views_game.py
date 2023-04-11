@@ -1,6 +1,12 @@
-from flask import render_template, request, redirect, session, flash, url_for, send_from_directory
+import time
+
+from flask import (flash, redirect, render_template, request,
+                   send_from_directory, session, url_for)
+
+from helpers import FormGame, delete_image, recovery_image
 from main import app, db
-from models import Games, Users
+from models import Games
+
 
 @app.route("/")
 def index():
@@ -11,13 +17,20 @@ def index():
 def new():
     if 'logged_user' not in session or session['logged_user'] is None:
         return redirect(url_for("login", next_page=url_for("new")))
-    return render_template('new.html', titulo='New Game')
+    
+    form = FormGame()
+    return render_template('new.html', titulo='New Game', form=form)
 
 @app.route("/create", methods=["POST",])
 def create():
-    name = request.form["name"]
-    category = request.form["category"]
-    platform = request.form["platform"]
+    form = FormGame(request.form)
+    
+    if not form.validate_on_submit():
+        return redirect(url_for("new"))
+    
+    name = form.name.data
+    category = form.category.data
+    platform = form.platform.data
     
     game = Games.query.filter_by(name=name).first()
     
@@ -31,7 +44,8 @@ def create():
     
     file = request.files["file"]
     upload_path = app.config["UPLOAD_PATH"]
-    file.save(f"{upload_path}/image_{new_game.id}.jpg")
+    timestamp = time.time()
+    file.save(f"{upload_path}/image_{new_game.id}_{timestamp}.jpg")
     
     return redirect(url_for("index"))
 
@@ -41,17 +55,31 @@ def edit(id):
         return redirect(url_for("login", next_page=url_for("edit")))
     
     game = Games.query.filter_by(id=id).first()
-    return render_template('edit.html', titulo='Edit Game', game=game)
+    form = FormGame()
+    form.name.data = game.name
+    form.category.data = game.category
+    form.platform.data = game.platform
+    thumbnail = recovery_image(id)
+    return render_template('edit.html', titulo='Edit Game', id=id, thumbnail=thumbnail, form=form)
 
 @app.route("/update", methods=["POST",])
 def update():
-    game = Games.query.filter_by(id=request.form["id"]).first()
-    game.name = request.form["name"]
-    game.category = request.form["category"]
-    game.platform = request.form["platform"]
+    form = FormGame(request.form)
     
-    db.session.add(game)
-    db.session.commit()
+    if form.validate_on_submit():
+        game = Games.query.filter_by(id=request.form["id"]).first()
+        game.name = form.name.data
+        game.category = form.category.data
+        game.platform = form.platform.data
+        
+        db.session.add(game)
+        db.session.commit()
+        
+        file = request.files["file"]
+        upload_path = app.config["UPLOAD_PATH"]
+        timestamp = time.time()
+        delete_image(game.id)
+        file.save(f"{upload_path}/image_{game.id}_{timestamp}.jpg")
     
     return redirect(url_for("index"))
 
@@ -64,30 +92,6 @@ def delete(id):
     db.session.commit()
     flash("Game deleted successfully")
     
-    return redirect(url_for("index"))
-
-@app.route("/login")
-def login():
-    next_page = request.args.get("next_page")
-    return render_template("login.html", next_page=next_page)
-
-@app.route("/authenticate", methods=["POST",])
-def authenticate():
-    user = Users.query.filter_by(nickname=request.form["user"]).first()
-    if user:
-        if request.form["password"] == user.password:
-            session["logged_user"] = user.nickname
-            flash(f"{user.nickname} logged successfully!")
-            next_page = request.form["next_page"]
-            return redirect(next_page)
-    
-    flash("User not logged")
-    return redirect(url_for("login"))
-
-@app.route("/logout")
-def logout():
-    session["logged_user"] = None
-    flash("Logout successfully")
     return redirect(url_for("index"))
 
 @app.route("/uploads/<file_name>")
