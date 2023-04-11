@@ -1,6 +1,17 @@
 {% extends "template.html" %}
 {% block content %}
-  <form action={{ url_for("create") }} method="post">
+  <form action={{ url_for("create") }} method="post" enctype="multipart/form-data">
+
+    <figure class="img-thumbnail col-md-4">
+      <img class="img-fluid" src="{{ url_for("image", file_name="default_image.jpg") }}" alt="">
+      <figcaption>
+        <label class="fileContainer">
+          Change Thumbnail
+          <input type="file" name="file" accept=".jpg">
+        </label>
+      </figcaption>
+    </figure>
+    
     <fieldset>
       <div class="form-group">
         <label for="name">Name</label>
