@@ -1,9 +1,7 @@
 import os
-
+from main import app
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField, validators
-
-from main import app
 
 
 class FormGame(FlaskForm):

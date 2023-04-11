@@ -1,12 +1,8 @@
-import time
-
-from flask import (flash, redirect, render_template, request,
-                   send_from_directory, session, url_for)
-
-from helpers import FormGame, delete_image, recovery_image
+from flask import (flash, redirect, render_template, request, send_from_directory, session, url_for)
 from main import app, db
 from models import Games
-
+from helpers import FormGame, delete_image, recovery_image
+import time
 
 @app.route("/")
 def index():

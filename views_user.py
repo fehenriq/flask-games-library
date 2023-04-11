@@ -1,10 +1,8 @@
-from flask import flash, redirect, render_template, request, session, url_for
-from flask_bcrypt import check_password_hash
-
-from helpers import FormUser
 from main import app
+from flask import flash, redirect, render_template, request, session, url_for
 from models import Users
-
+from helpers import FormUser
+from flask_bcrypt import check_password_hash
 
 @app.route("/login")
 def login():
